@@ -119,3 +119,5 @@ group :production do
   gem "aws-sdk-cloudfront", "~> 1.56", require: false
   gem "cloudflare-rails", "~> 5.0" # Fix request.ip and request.remote_ip in Rails when using Cloudflare
 end
+
+gem "knapsack_pro", "~> 6.0", :groups => [:development, :test]

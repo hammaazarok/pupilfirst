@@ -34,7 +34,16 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: --entrypoint redis-server
+    strategy:
+      fail-fast: false
+      matrix:
+        ci_node_total: [2]
+        ci_node_index: [0, 1]
     env:
       RAILS_ENV: test
       RUBYOPT: "-W:no-deprecated -W:no-experimental"
@@ -51,7 +60,10 @@ jobs:
       RECAPTCHA_V3_SECRET_KEY: ignored
       RECAPTCHA_V2_SITE_KEY: ignored
       RECAPTCHA_V2_SECRET_KEY: ignored
-
+      KNAPSACK_PRO_TEST_SUITE_TOKEN_RSPEC: ${{ secrets.KNAPSACK_PRO_TEST_SUITE_TOKEN }}
+      KNAPSACK_PRO_CI_NODE_TOTAL: ${{ matrix.ci_node_total }}
+      KNAPSACK_PRO_CI_NODE_INDEX: ${{ matrix.ci_node_index }}
+      KNAPSACK_PRO_LOG_LEVEL: info
     steps:
       - name: Install libvips
         run: |
@@ -117,7 +129,7 @@ jobs:
           ./cc-test-reporter after-build -t simplecov --exit-code $?
       - name: Specs (On non-master branches)
         if: env.GIT_BRANCH != 'master'
-        run: bundle exec rspec -fd
+        run: bundle exec rake knapsack_pro:queue:rspec
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
