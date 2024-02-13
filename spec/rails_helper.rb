@@ -14,6 +14,10 @@ require "rspec/rails"
 
 require "webmock/rspec"
 require "support/missing_translations"
+require 'knapsack_pro'
+
+# Knapsack Pro config
+KnapsackPro::Adapters::RSpecAdapter.bind
 
 # Disable all net connections except ones to localhost, and to locations the webdrivers gem downloads its binaries from.
 WebMock.disable_net_connect!(
@@ -21,7 +25,8 @@ WebMock.disable_net_connect!(
   allow: [
     %r{github.com/mozilla/geckodriver/releases},
     /github-production-release-asset/,
-    "chromedriver.storage.googleapis.com"
+    "chromedriver.storage.googleapis.com",
+    "api.knapsackpro.com"
   ]
 )
 
@@ -115,6 +120,7 @@ end
 
 Capybara.register_driver :headless_chrome do |app|
   options = Selenium::WebDriver::Chrome::Options.new
+  options.add_argument("--no-sandbox")
   options.add_argument("--window-size=1920,1080")
   options.add_argument("use-fake-ui-for-media-stream")
   options.add_argument("use-fake-device-for-media-stream")
